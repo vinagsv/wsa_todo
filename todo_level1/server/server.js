@@ -4,7 +4,7 @@ import cors from "cors";
 import connectDb from "./utils/db.js";
 import router from "./routes/tasks.route.js";
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8000;
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
