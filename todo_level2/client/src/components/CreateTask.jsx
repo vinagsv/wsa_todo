@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
-import { UserIcon, TitleImg, Memo, Calender } from "../assets/asset";
+import { userIcon, titlePlaceholderImg, memo, calendar } from "../assets/asset";
 import InputField from "./ui/InputField";
 import clsx from "clsx";
-import createTaskAPI from "../utils/createTask";
+import { createTaskApi } from "../utils/taskapi";
 
 export default function CreateTask({ onCreateTask, onCancel }) {
   const [title, setTitle] = useState("");
@@ -12,7 +12,7 @@ export default function CreateTask({ onCreateTask, onCancel }) {
   const [loading, setLoading] = useState(false);
 
   const handleResponse = useCallback(
-    (responseData) => {
+    function (responseData) {
       if (responseData.success) {
         onCreateTask();
       }
@@ -27,7 +27,7 @@ export default function CreateTask({ onCreateTask, onCancel }) {
 
   const createNewTask = useCallback(
     function (values) {
-      createTaskAPI(values, handleResponse, handleError, setLoading);
+      createTaskApi(values, handleResponse, handleError, setLoading);
     },
     [handleResponse]
   );
@@ -60,13 +60,13 @@ export default function CreateTask({ onCreateTask, onCancel }) {
   return (
     <div className="content-section create-task-section">
       <div className="create-task-card">
-        <img src={UserIcon} alt="" width={263} />
+        <img src={userIcon} alt="" width={263} />
         <h1 className="create-task-title-text">Create New Task</h1>
         <InputField
           name={"new-task-title"}
           label={"Title"}
           type={"text"}
-          inputImg={TitleImg}
+          inputImg={titlePlaceholderImg}
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
@@ -77,7 +77,7 @@ export default function CreateTask({ onCreateTask, onCancel }) {
           name="new-task-description"
           label="description"
           type="textarea"
-          inputImg={Memo}
+          inputImg={memo}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeHolder={"Description"}
@@ -88,7 +88,7 @@ export default function CreateTask({ onCreateTask, onCancel }) {
           name="new-task-due-date"
           label={"Due Date"}
           type={"date"}
-          inputImg={Calender}
+          inputImg={calendar}
           value={dueDate}
           onChange={(date) => setDueDate(date)}
           placeHolder="Due Date"

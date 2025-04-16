@@ -1,22 +1,34 @@
 import { Router } from "express";
 import {
-  getTasks,
-  newTask,
+  createNewTask,
   updateTask,
-  updateLables,
+  deleteTask,
+  getAllTasks,
+  updateLabels,
   getLabels,
   updateStatus,
-  deleteTask,
 } from "../controllers/task.controller.js";
-
 const router = Router();
 
-router.post("/task", newTask);
-router.get("/tasks", getTasks);
-router.put("/task/:id", updateTask);
-router.put("/task/:id/labels", updateLables);
+// GET [api/v2/tasks]
+router.get("/", getAllTasks);
+
+// GET [api/v2/tasks/labels]
 router.get("/labels", getLabels);
-router.put("/task/:id/status", updateStatus);
-router.delete("/task/:id", deleteTask); // Fixed delete route
+
+// POST [api/v2/tasks]
+router.post("/", createNewTask);
+
+// PUT [api/v2/tasks/id]
+router.put("/:id", updateTask);
+
+// PUT [api/v2/tasks/id/labels]
+router.put("/:id/labels", updateLabels);
+
+// PUT [api/v2/tasks/id/status]
+router.put("/:id/status", updateStatus);
+
+// DELETE [api/v2/tasks/id]
+router.delete("/:id", deleteTask);
 
 export default router;

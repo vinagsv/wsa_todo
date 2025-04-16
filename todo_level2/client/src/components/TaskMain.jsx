@@ -3,11 +3,10 @@ import CreateTask from "./CreateTask";
 import EditTask from "./EditTask";
 import TaskList from "./TaskList";
 import ViewTask from "./ViewTask";
-import DeleteTask from "./ui/DeleteTask";
 import Loading from "./ui/Loading";
 
-import { useCallback, useEffect, useState } from "react";
-import fetchTaskAPI from "../utils/fetchTasks";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { fetchTaskAPI } from "../utils/taskapi";
 
 const LOADING_SCREEN = "LOADING";
 const NO_TASK_SCREEN = "NOTASK";
@@ -15,12 +14,17 @@ const TASK_LIST_SCREEN = "TASKLIST";
 const EDIT_TASK_SCREEN = "EDITTASK";
 const VIEW_TASK_SCREEN = "VIEWTASK";
 const CREATE_TASK_SCREEN = "CREATETASK";
-const DELETE_TASK_SCREEN = "DELETETASK";
 
 export default function TaskMain() {
   const [currentComponent, setCurrentComponent] = useState(LOADING_SCREEN);
   const [tasks, setTasks] = useState([]);
-  const [activeTask, setActiveTask] = useState();
+  const [activeTaskId, setActiveTaskId] = useState();
+  const [boardView, setBoardView] = useState(false);
+
+  const activeTask = useMemo(
+    () => tasks.find((task) => task._id === activeTaskId),
+    [tasks, activeTaskId]
+  );
 
   const showScreen = useCallback(function (screen) {
     setCurrentComponent(screen);
@@ -28,7 +32,7 @@ export default function TaskMain() {
 
   const handleResponse = useCallback(
     function (responseData) {
-      const extractedTasks = responseData.tasks;
+      const extractedTasks = responseData.data;
       setTasks(extractedTasks);
       if (extractedTasks.length) {
         showScreen(TASK_LIST_SCREEN);
@@ -55,6 +59,17 @@ export default function TaskMain() {
     fetchAllTask();
   }, [fetchAllTask]);
 
+  const changeTaskStatus = useCallback(function (id, status) {
+    setTasks((prev) => {
+      return prev.map((task) => {
+        if (task._id === id) {
+          return { ...task, status: status };
+        }
+        return task;
+      });
+    });
+  }, []);
+
   return (
     <>
       {currentComponent === LOADING_SCREEN && <Loading />}
@@ -64,14 +79,19 @@ export default function TaskMain() {
           <NoTask onCreateTask={() => showScreen(CREATE_TASK_SCREEN)} />
         )}
 
-        {currentComponent === TASK_LIST_SCREEN && (
+        {(currentComponent === TASK_LIST_SCREEN ||
+          currentComponent === VIEW_TASK_SCREEN) && (
           <TaskList
             tasks={tasks}
-            fetchAllTask={fetchAllTask}
-            showCreateTaskScreen={() => showScreen(CREATE_TASK_SCREEN)}
+            setTasks={setTasks}
+            boardView={boardView}
+            setBoardView={setBoardView}
+            setActiveTaskId={setActiveTaskId}
+            changeTaskStatus={changeTaskStatus}
             showEditTaskScreen={() => showScreen(EDIT_TASK_SCREEN)}
             showViewTaskScreen={() => showScreen(VIEW_TASK_SCREEN)}
-            setActiveTask={setActiveTask}
+            showCreateTaskScreen={() => showScreen(CREATE_TASK_SCREEN)}
+            fetchAllTask={fetchAllTask}
           />
         )}
 
@@ -86,9 +106,10 @@ export default function TaskMain() {
           <ViewTask
             activeTask={activeTask}
             fetchAllTask={fetchAllTask}
-            onCancel={() => showScreen(TASK_LIST_SCREEN)}
             showEditTaskScreen={() => showScreen(EDIT_TASK_SCREEN)}
-            setActiveTask={setActiveTask}
+            setActiveTaskId={setActiveTaskId}
+            onCancel={() => showScreen(TASK_LIST_SCREEN)}
+            changeTaskStatus={changeTaskStatus}
           />
         )}
 
@@ -99,7 +120,6 @@ export default function TaskMain() {
             onCancel={() => showScreen(TASK_LIST_SCREEN)}
           />
         )}
-        {/* {currentComponent === DELETE_TASK_SCREEN && <DeleteTask />} */}
       </div>
     </>
   );

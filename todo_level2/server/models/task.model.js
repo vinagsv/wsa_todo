@@ -6,7 +6,7 @@ const taskSchema = new mongoose.Schema({
     due_date: Date,
     status: {
         type: String,
-        default: "open"
+        default: "Open"
     },
     labels: [{ type: String }],
     added_on: {
